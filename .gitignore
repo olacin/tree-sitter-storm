@@ -4,19 +4,25 @@
 
 # Node artifacts
 /build/
+/prebuilds/
 /node_modules/
 
 # Swift artifacts
 /.build/
 
 # Python artifacts
+/.venv/
 /dist/
 *.egg-info
 *.whl
 
 # Zig artifacts
+.zig-cache/
 /zig-cache/
 /zig-out/
+
+# Go artifacts
+/_obj/
 
 # C artifacts
 *.a
@@ -25,6 +31,8 @@
 *.dylib
 *.dll
 *.pc
+*.exp
+*.lib
 
 # Example dirs
 /examples/*/
@@ -34,3 +42,8 @@ dsl.d.ts
 *.wasm
 *.obj
 *.o
+
+# Archives
+*.tar.gz
+*.tgz
+*.zip
