@@ -208,11 +208,7 @@
       "members": [
         {
           "type": "SYMBOL",
-          "name": "variable"
-        },
-        {
-          "type": "SYMBOL",
-          "name": "string"
+          "name": "_expression"
         },
         {
           "type": "SYMBOL",
@@ -291,19 +287,33 @@
       ]
     },
     "integer": {
-      "type": "PATTERN",
-      "value": "-?\\d+"
+      "type": "TOKEN",
+      "content": {
+        "type": "PREC",
+        "value": 1,
+        "content": {
+          "type": "PATTERN",
+          "value": "-?\\d+"
+        }
+      }
     },
     "float": {
-      "type": "PATTERN",
-      "value": "-?\\d+.\\d+"
+      "type": "TOKEN",
+      "content": {
+        "type": "PREC",
+        "value": 2,
+        "content": {
+          "type": "PATTERN",
+          "value": "-?\\d+\\.\\d+"
+        }
+      }
     },
     "literal": {
       "type": "CHOICE",
       "members": [
         {
           "type": "SYMBOL",
-          "name": "string"
+          "name": "float"
         },
         {
           "type": "SYMBOL",
@@ -311,7 +321,7 @@
         },
         {
           "type": "SYMBOL",
-          "name": "float"
+          "name": "string"
         }
       ]
     },
@@ -590,6 +600,10 @@
         {
           "type": "SYMBOL",
           "name": "_formatstring"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "identifier"
         }
       ]
     },
@@ -643,34 +657,38 @@
       }
     },
     "interpolation": {
-      "type": "SEQ",
-      "members": [
-        {
-          "type": "STRING",
-          "value": "{"
-        },
-        {
-          "type": "FIELD",
-          "name": "expression",
-          "content": {
-            "type": "CHOICE",
-            "members": [
-              {
-                "type": "SYMBOL",
-                "name": "identifier"
-              },
-              {
-                "type": "SYMBOL",
-                "name": "_expression"
-              }
-            ]
+      "type": "PREC",
+      "value": 1,
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "STRING",
+            "value": "{"
+          },
+          {
+            "type": "FIELD",
+            "name": "expression",
+            "content": {
+              "type": "CHOICE",
+              "members": [
+                {
+                  "type": "SYMBOL",
+                  "name": "identifier"
+                },
+                {
+                  "type": "SYMBOL",
+                  "name": "_expression"
+                }
+              ]
+            }
+          },
+          {
+            "type": "STRING",
+            "value": "}"
           }
-        },
-        {
-          "type": "STRING",
-          "value": "}"
-        }
-      ]
+        ]
+      }
     },
     "_formatstring": {
       "type": "SEQ",
@@ -857,3 +875,4 @@
   "inline": [],
   "supertypes": []
 }
+

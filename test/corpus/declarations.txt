@@ -7,17 +7,40 @@ $string = mystring
 // Quoted string variable
 $ipv4 = "8.8.8.8"
 // Number variable
-$number = (123)
-// Relative prop variable
-$fqdn = :fqdn
+$number = 123
 // Function call output variable
 $out = $myFunction()
 
----
+--------------------------------------------------------------------------------
 
-(program
-  (identifier)
-)
+(source_file
+  (comment)
+  (variable_assignment
+    (variable
+      (identifier))
+    (literal
+      (string
+        (identifier))))
+  (comment)
+  (variable_assignment
+    (variable
+      (identifier))
+    (literal
+      (string)))
+  (comment)
+  (variable_assignment
+    (variable
+      (identifier))
+    (literal
+      (integer)))
+  (comment)
+  (variable_assignment
+    (variable
+      (identifier))
+    (function_call
+      (variable
+        (identifier))
+      (arguments))))
 
 ================================================================================
 Multiple variables declarations
@@ -40,5 +63,24 @@ function myFunction(bar, baz=$lib.null) {}
 
 --------------------------------------------------------------------------------
 
-(comment)
-(comment)
+(source_file
+  (function_definition
+    (identifier)
+    (funcargs)
+    (block))
+  (function_definition
+    (identifier)
+    (funcargs
+      (funcarg (identifier)))
+    (block))
+  (function_definition
+    (identifier)
+    (funcargs
+      (funcarg (identifier))
+      (funcarg
+        (identifier)
+        (selector_expression
+          (variable
+            (identifier))
+          (identifier))))
+    (block)))

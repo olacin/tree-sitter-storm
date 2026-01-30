@@ -79,21 +79,21 @@ module.exports = grammar({
       '=',
       field('value', $._expression),
     ),
-    argument: ($) => choice($.variable, $.string, $.keyword_argument),
+    argument: ($) => choice($._expression, $.keyword_argument),
     arguments: ($) => seq(token.immediate('('), commaSep($.argument), ')'),
     function_call: ($) => seq(
       field('name', $._expression),
       field('args', $.arguments),
     ),
 
-    integer: (_) => /-?\d+/,
-    float: (_) => /-?\d+.\d+/,
+    integer: (_) => token(prec(1, /-?\d+/)),
+    float: (_) => token(prec(2, /-?\d+\.\d+/)),
 
     // Literals
     literal: ($) => choice(
-      $.string,
-      $.integer,
       $.float,
+      $.integer,
+      $.string,
     ),
 
     return_statement: ($) => seq('return', token.immediate('('), optional($._expression), ')'),
@@ -216,7 +216,7 @@ module.exports = grammar({
       $._single_quoted_string,
       $._triple_quoted_string,
       $._formatstring,
-      // $.identifier,
+      $.identifier,
     ),
 
     // Use the same escape sequences as Python
@@ -233,14 +233,14 @@ module.exports = grammar({
       ),
     ))),
 
-    interpolation: ($) => seq(
+    interpolation: ($) => prec(1, seq(
       '{',
       field('expression', choice(
         $.identifier,
         $._expression,
       )),
       '}',
-    ),
+    )),
 
     _formatstring: ($) => seq(
       '`',

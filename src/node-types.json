@@ -8,11 +8,19 @@
       "required": true,
       "types": [
         {
+          "type": "function_call",
+          "named": true
+        },
+        {
           "type": "keyword_argument",
           "named": true
         },
         {
-          "type": "string",
+          "type": "literal",
+          "named": true
+        },
+        {
+          "type": "selector_expression",
           "named": true
         },
         {
@@ -617,6 +625,10 @@
       "types": [
         {
           "type": "escape_sequence",
+          "named": true
+        },
+        {
+          "type": "identifier",
           "named": true
         },
         {

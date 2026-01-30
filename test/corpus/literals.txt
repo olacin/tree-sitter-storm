@@ -8,8 +8,9 @@ multiline comment */
 
 --------------------------------------------------------------------------------
 
-(comment)
-(comment)
+(source_file
+  (comment)
+  (comment))
 
 ================================================================================
 Function definition
@@ -21,11 +22,11 @@ function getFooByBar(bar) {
 
 --------------------------------------------------------------------------------
 
-(program
-      (function_declaration
+(source_file
+      (function_definition
         (identifier)
-        (parameters
-          (identifier))
+        (funcargs
+          (funcarg (identifier)))
         (block
           (comment))))
 
@@ -52,8 +53,9 @@ $myFunction(bar, baz=wheee)
           (identifier))
         (arguments
           (argument
-            (string
-              (identifier))))))
+            (literal
+              (string
+                (identifier)))))))
     (expression_statement
       (function_call
         (variable
@@ -68,12 +70,15 @@ $myFunction(bar, baz=wheee)
           (identifier))
         (arguments
           (argument
-            (string
-              (identifier)))
+            (literal
+              (string
+                (identifier))))
           (argument
             (keyword_argument
               (identifier)
-              (identifier)))))))
+              (literal
+                (string
+                  (identifier)))))))))
 
 ================================================================================
 String literals
@@ -105,16 +110,35 @@ $f = `Test {$lib.base64.encode($world)}`
           (identifier))
         (literal
           (string)))
-      (expression_statement
-        (literal
-          (string)))
-      (expression_statement
-        (literal
-          (string)))
       (variable_assignment
         (variable
           (identifier))
         (literal
           (string
             (interpolation
-              (identifier))))))
+              (identifier)))))
+      (variable_assignment
+        (variable
+          (identifier))
+        (literal
+          (string
+            (interpolation
+              (variable
+                (identifier))))))
+      (variable_assignment
+        (variable
+          (identifier))
+        (literal
+          (string
+            (interpolation
+              (function_call
+                (selector_expression
+                  (selector_expression
+                    (variable
+                      (identifier))
+                    (identifier))
+                  (identifier))
+                (arguments
+                  (argument
+                    (variable
+                      (identifier))))))))))
