@@ -133,8 +133,10 @@
   "empty"
   "yield"
   "divert"
-  ; "spin"
+  "emit"
 ] @keyword
+
+(spin_statement) @keyword
 
 [
   "."
