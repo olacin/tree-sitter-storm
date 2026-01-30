@@ -51,7 +51,37 @@ Multiple variables declarations
 
 --------------------------------------------------------------------------------
 
-(source_file)
+(source_file
+  (tuple_assignment
+    (variable_list
+      (variable
+        (identifier))
+      (variable
+        (identifier)))
+    (literal
+      (list
+        (literal
+          (string))
+        (literal
+          (string)))))
+  (tuple_assignment
+    (variable_list
+      (variable
+        (identifier))
+      (variable
+        (identifier))
+      (variable
+        (identifier)))
+    (literal
+      (list
+        (literal
+          (string))
+        (literal
+          (list
+            (literal
+              (integer))))
+        (literal
+          (string))))))
 
 ================================================================================
 Function declarations

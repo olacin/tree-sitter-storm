@@ -142,3 +142,69 @@ $f = `Test {$lib.base64.encode($world)}`
                   (argument
                     (variable
                       (identifier))))))))))
+
+================================================================================
+Boolean and null literals
+================================================================================
+
+$a = true
+$b = false
+$c = null
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (variable_assignment
+    (variable
+      (identifier))
+    (literal
+      (boolean)))
+  (variable_assignment
+    (variable
+      (identifier))
+    (literal
+      (boolean)))
+  (variable_assignment
+    (variable
+      (identifier))
+    (literal
+      (null))))
+
+================================================================================
+Lists and arrays
+================================================================================
+
+$list = (1, 2, 3)
+$array = [4, 5, 6]
+$empty_list = ()
+$empty_array = []
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (variable_assignment
+    (variable
+      (identifier))
+    (literal
+      (list
+        (literal (integer))
+        (literal (integer))
+        (literal (integer)))))
+  (variable_assignment
+    (variable
+      (identifier))
+    (literal
+      (array
+        (literal (integer))
+        (literal (integer))
+        (literal (integer)))))
+  (variable_assignment
+    (variable
+      (identifier))
+    (literal
+      (list)))
+  (variable_assignment
+    (variable
+      (identifier))
+    (literal
+      (array))))

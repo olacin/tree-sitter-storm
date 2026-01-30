@@ -18,6 +18,8 @@
 (string) @string
 (integer) @number
 (float) @number.float
+(boolean) @boolean
+(null) @constant.builtin
 
 (escape_sequence) @string.escape
 
@@ -55,6 +57,28 @@
 ; Operators
 
 [
+  "and"
+  "or"
+  "not"
+] @keyword.operator
+
+[
+  "+"
+  "-"
+  "*"
+  "/"
+  "%"
+  "**"
+  "<"
+  ">"
+  "<="
+  ">="
+  "!="
+  "~="
+  "^="
+] @operator
+
+[
   "$"
   ; "|"
 ] @operator
@@ -70,6 +94,23 @@
 ] @keyword.return
 
 [
+  "if"
+  "elif"
+  "else"
+] @keyword.conditional
+
+[
+  "for"
+  "while"
+  "in"
+] @keyword.repeat
+
+[
+  "break"
+  "continue"
+] @keyword.repeat
+
+[
   "init"
   "fini"
   "empty"
@@ -77,13 +118,6 @@
   "divert"
   ; "spin"
 ] @keyword
-
-; Loop-related keywords
-
-[
-  "break"
-  "continue"
-] @keyword.repeat
 
 [
   "."
@@ -95,8 +129,8 @@
   ")"
   "{"
   "}"
-  ; "["
-  ; "]"
+  "["
+  "]"
 ] @punctuation.bracket
 
 (comment) @comment @spell

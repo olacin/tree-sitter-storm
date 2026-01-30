@@ -18,6 +18,12 @@ module.exports = grammar({
     $.comment,
   ],
 
+  conflicts: ($) => [
+    [$._expression, $.variable_list],
+    [$.literal, $.tuple_assignment],
+    [$.keyword_argument, $.string],
+  ],
+
   rules: {
     source_file: ($) => repeat($._statement),
 
@@ -30,6 +36,7 @@ module.exports = grammar({
     _simple_statement: ($) => choice(
       $.expression_statement,
       $.variable_assignment,
+      $.tuple_assignment,
       $.return_statement,
       $.emit_statement,
       $.break_statement,
@@ -42,6 +49,9 @@ module.exports = grammar({
     // Compound statements
     _compound_statement: ($) => choice(
       $.function_definition,
+      $.if_statement,
+      $.for_statement,
+      $.while_statement,
       $.initblock,
       $.finiblock,
       $.emptyblock,
@@ -49,17 +59,53 @@ module.exports = grammar({
 
     expression_statement: ($) => $._expression,
     _expression: ($) => choice(
+      $.binary_expression,
+      $.unary_expression,
+      $.parenthesized_expression,
       $.variable,
       $.function_call,
       $.selector_expression,
-      // TODO: check for literal which does not look like string
-      // $.identifier,
       $.literal,
     ),
 
-    variable_assignment: ($) => seq($.variable, '=', field('value', $._expression)),
+    // Binary expressions with proper precedence
+    binary_expression: ($) => choice(
+      // Boolean operators
+      prec.left(1, seq($._expression, 'or', $._expression)),
+      prec.left(2, seq($._expression, 'and', $._expression)),
+      // Comparison operators
+      prec.left(3, seq($._expression, '<', $._expression)),
+      prec.left(3, seq($._expression, '>', $._expression)),
+      prec.left(3, seq($._expression, '<=', $._expression)),
+      prec.left(3, seq($._expression, '>=', $._expression)),
+      prec.left(3, seq($._expression, '!=', $._expression)),
+      prec.left(3, seq($._expression, '~=', $._expression)),
+      prec.left(3, seq($._expression, '^=', $._expression)),
+      // Note: '=' is used for assignment, not comparison in expressions
+      // Arithmetic operators
+      prec.left(4, seq($._expression, '+', $._expression)),
+      prec.left(4, seq($._expression, '-', $._expression)),
+      prec.left(5, seq($._expression, '*', $._expression)),
+      prec.left(5, seq($._expression, '/', $._expression)),
+      prec.left(5, seq($._expression, '%', $._expression)),
+      prec.right(6, seq($._expression, '**', $._expression)),
+    ),
 
-    identifier: (_) => /\w+/,
+    // Unary expressions
+    unary_expression: ($) => choice(
+      prec(7, seq('not', $._expression)),
+      prec(7, seq('-', $._expression)),
+      prec(7, seq('+', $._expression)),
+    ),
+
+    // Parenthesized expression (for grouping)
+    // Note: single-element lists like (123) are ambiguous with parenthesized expressions
+    // We prefer to parse them as lists to maintain consistency
+    parenthesized_expression: ($) => prec(-1, seq('(', $._expression, ')')),
+
+    variable_assignment: ($) => prec.right(seq($.variable, '=', field('value', $._expression))),
+
+    identifier: (_) => token(prec(-1, /\w+/)),
     variable: ($) => seq('$', field('name', $.identifier)),
 
     selector_expression: ($) => seq(
@@ -88,13 +134,33 @@ module.exports = grammar({
 
     integer: (_) => token(prec(1, /-?\d+/)),
     float: (_) => token(prec(2, /-?\d+\.\d+/)),
+    boolean: (_) => token(prec(2, choice('true', 'false'))),
+    null: (_) => token(prec(2, 'null')),
 
     // Literals
     literal: ($) => choice(
       $.float,
       $.integer,
+      $.boolean,
+      $.null,
       $.string,
+      $.list,
+      $.array,
     ),
+
+    // Lists and arrays
+    list: ($) => seq('(', commaSep($._expression), optional(','), ')'),
+    array: ($) => seq('[', commaSep($._expression), optional(','), ']'),
+
+    // Variable list for unpacking
+    variable_list: ($) => seq('(', commaSep1($.variable), optional(','), ')'),
+
+    // Tuple unpacking assignment
+    tuple_assignment: ($) => prec.right(seq(
+      field('left', $.variable_list),
+      '=',
+      field('right', $._expression),
+    )),
 
     return_statement: ($) => seq('return', token.immediate('('), optional($._expression), ')'),
     emit_statement: ($) => seq('emit', $._expression),
@@ -288,15 +354,31 @@ module.exports = grammar({
     ),
 
     // https://synapse.docs.vertex.link/en/latest/synapse/userguides/storm_adv_control.html#if-else-statement
-    // if_statement: ($) => seq(
-    //   'if',
-    //   field('condition', $._expression),
-    //   field('consequence', $.block),
-    //   repeat(field('alternative', $.elif_clause)),
-    //   optional(field('alternative', $.else_clause)),
-    // ),
-    // elif_clause: ($) => seq('elif', field('condition', $._expression), field('consequence', $.block)),
-    // else_clause: ($) => seq('else', field('consequence', $.block)),
+    if_statement: ($) => seq(
+      'if',
+      field('condition', $._expression),
+      field('consequence', $.block),
+      repeat(field('alternative', $.elif_clause)),
+      optional(field('alternative', $.else_clause)),
+    ),
+    elif_clause: ($) => seq('elif', field('condition', $._expression), field('consequence', $.block)),
+    else_clause: ($) => seq('else', field('consequence', $.block)),
+
+    // For loop
+    for_statement: ($) => seq(
+      'for',
+      choice($.variable, $.variable_list),
+      'in',
+      $._expression,
+      $.block,
+    ),
+
+    // While loop
+    while_statement: ($) => seq(
+      'while',
+      $._expression,
+      $.block,
+    ),
 
 
     // A value consisting of a name then 0 or more derefs and function calls
