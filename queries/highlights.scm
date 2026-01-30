@@ -18,6 +18,8 @@
 (string) @string
 (integer) @number
 (float) @number.float
+(boolean) @boolean
+(null) @constant.builtin
 
 (escape_sequence) @string.escape
 
@@ -52,7 +54,39 @@
   )
 )
 
+; Storm properties
+(full_property) @property
+(relative_property) @property
+(universal_property) @property
+
+; Storm tags
+(tag) @tag
+(tag_property) @tag
+(tag_property_simple) @tag
+
 ; Operators
+
+[
+  "and"
+  "or"
+  "not"
+] @keyword.operator
+
+[
+  "+"
+  "-"
+  "*"
+  "/"
+  "%"
+  "**"
+  "<"
+  ">"
+  "<="
+  ">="
+  "!="
+  "~="
+  "^="
+] @operator
 
 [
   "$"
@@ -70,20 +104,39 @@
 ] @keyword.return
 
 [
-  "init"
-  "fini"
-  "empty"
-  "yield"
-  "divert"
-  ; "spin"
-] @keyword
+  "if"
+  "elif"
+  "else"
+  "switch"
+] @keyword.conditional
 
-; Loop-related keywords
+[
+  "for"
+  "while"
+  "in"
+] @keyword.repeat
 
 [
   "break"
   "continue"
 ] @keyword.repeat
+
+[
+  "try"
+  "catch"
+  "as"
+] @keyword.exception
+
+[
+  "init"
+  "fini"
+  "empty"
+  "yield"
+  "divert"
+  "emit"
+] @keyword
+
+(spin_statement) @keyword
 
 [
   "."
@@ -95,8 +148,8 @@
   ")"
   "{"
   "}"
-  ; "["
-  ; "]"
+  "["
+  "]"
 ] @punctuation.bracket
 
 (comment) @comment @spell

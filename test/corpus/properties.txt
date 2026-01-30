@@ -1,0 +1,61 @@
+================================================================================
+Full properties
+================================================================================
+
+inet:ipv4
+inet:ipv4:asn
+file:bytes:md5
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (expression_statement
+    (property_expression
+      (full_property)))
+  (expression_statement
+    (property_expression
+      (full_property)))
+  (expression_statement
+    (property_expression
+      (full_property))))
+
+================================================================================
+Relative properties
+================================================================================
+
+:ipv4
+:fqdn
+:$propname
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (expression_statement
+    (property_expression
+      (relative_property)))
+  (expression_statement
+    (property_expression
+      (relative_property)))
+  (expression_statement
+    (property_expression
+      (relative_property
+        (variable (identifier))))))
+
+================================================================================
+Universal properties
+================================================================================
+
+.$created
+.$seen
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (expression_statement
+    (property_expression
+      (universal_property
+        (variable (identifier)))))
+  (expression_statement
+    (property_expression
+      (universal_property
+        (variable (identifier))))))

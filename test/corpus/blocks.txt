@@ -1,0 +1,312 @@
+================================================================================
+Init block
+================================================================================
+
+init {
+  $counter = 0
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (initblock
+    (block
+      (variable_assignment
+        (variable (identifier))
+        (literal (integer))))))
+
+================================================================================
+Init block with multiple statements
+================================================================================
+
+init {
+  $counter = 0
+  $total = 0
+  $lib.print("initialized")
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (initblock
+    (block
+      (variable_assignment
+        (variable (identifier))
+        (literal (integer)))
+      (variable_assignment
+        (variable (identifier))
+        (literal (integer)))
+      (expression_statement
+        (function_call
+          (selector_expression
+            (variable (identifier))
+            (identifier))
+          (arguments
+            (argument
+              (literal (string)))))))))
+
+================================================================================
+Fini block
+================================================================================
+
+fini {
+  $lib.print("cleanup")
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (finiblock
+    (block
+      (expression_statement
+        (function_call
+          (selector_expression
+            (variable (identifier))
+            (identifier))
+          (arguments
+            (argument
+              (literal (string)))))))))
+
+================================================================================
+Fini block with multiple statements
+================================================================================
+
+fini {
+  $lib.print($counter)
+  $lib.save($total)
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (finiblock
+    (block
+      (expression_statement
+        (function_call
+          (selector_expression
+            (variable (identifier))
+            (identifier))
+          (arguments
+            (argument
+              (variable (identifier))))))
+      (expression_statement
+        (function_call
+          (selector_expression
+            (variable (identifier))
+            (identifier))
+          (arguments
+            (argument
+              (variable (identifier)))))))))
+
+================================================================================
+Empty block
+================================================================================
+
+empty {
+  $lib.print("no results")
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (emptyblock
+    (block
+      (expression_statement
+        (function_call
+          (selector_expression
+            (variable (identifier))
+            (identifier))
+          (arguments
+            (argument
+              (literal (string)))))))))
+
+================================================================================
+Empty block with multiple statements
+================================================================================
+
+empty {
+  $lib.warn("No data found")
+  $hasResults = false
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (emptyblock
+    (block
+      (expression_statement
+        (function_call
+          (selector_expression
+            (variable (identifier))
+            (identifier))
+          (arguments
+            (argument
+              (literal (string))))))
+      (variable_assignment
+        (variable (identifier))
+        (literal (boolean))))))
+
+================================================================================
+Subquery with yield keyword
+================================================================================
+
+yield {
+  $lib.getData()
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (expression_statement
+    (subquery
+      (block
+        (expression_statement
+          (function_call
+            (selector_expression
+              (variable (identifier))
+              (identifier))
+            (arguments)))))))
+
+================================================================================
+Subquery without yield keyword
+================================================================================
+
+{
+  $lib.print("subquery")
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (expression_statement
+    (subquery
+      (block
+        (expression_statement
+          (function_call
+            (selector_expression
+              (variable (identifier))
+              (identifier))
+            (arguments
+              (argument
+                (literal (string))))))))))
+
+================================================================================
+Subquery with multiple statements
+================================================================================
+
+yield {
+  $x = 42
+  $lib.process($x)
+  emit $x
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (expression_statement
+    (subquery
+      (block
+        (variable_assignment
+          (variable (identifier))
+          (literal (integer)))
+        (expression_statement
+          (function_call
+            (selector_expression
+              (variable (identifier))
+              (identifier))
+            (arguments
+              (argument
+                (variable (identifier))))))
+        (emit_statement
+          (variable (identifier)))))))
+
+================================================================================
+Init, fini, and empty together
+================================================================================
+
+init {
+  $counter = 0
+}
+
+fini {
+  $lib.print($counter)
+}
+
+empty {
+  $lib.print("no data")
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (initblock
+    (block
+      (variable_assignment
+        (variable (identifier))
+        (literal (integer)))))
+  (finiblock
+    (block
+      (expression_statement
+        (function_call
+          (selector_expression
+            (variable (identifier))
+            (identifier))
+          (arguments
+            (argument
+              (variable (identifier))))))))
+  (emptyblock
+    (block
+      (expression_statement
+        (function_call
+          (selector_expression
+            (variable (identifier))
+            (identifier))
+          (arguments
+            (argument
+              (literal (string)))))))))
+
+================================================================================
+Nested subquery
+================================================================================
+
+yield {
+  yield {
+    $lib.inner()
+  }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (expression_statement
+    (subquery
+      (block
+        (expression_statement
+          (subquery
+            (block
+              (expression_statement
+                (function_call
+                  (selector_expression
+                    (variable (identifier))
+                    (identifier))
+                  (arguments))))))))))
+
+================================================================================
+Empty blocks
+================================================================================
+
+init {}
+
+fini {}
+
+empty {}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (initblock
+    (block))
+  (finiblock
+    (block))
+  (emptyblock
+    (block)))

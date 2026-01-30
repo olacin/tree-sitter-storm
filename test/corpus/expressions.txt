@@ -1,0 +1,96 @@
+================================================================================
+Arithmetic expressions
+================================================================================
+
+$a = 1 + 2
+$b = 3 * 4
+$c = 2 ** 8
+$d = ($a + $b) * $c
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (variable_assignment
+    (variable (identifier))
+    (binary_expression
+      (literal (integer))
+      (literal (integer))))
+  (variable_assignment
+    (variable (identifier))
+    (binary_expression
+      (literal (integer))
+      (literal (integer))))
+  (variable_assignment
+    (variable (identifier))
+    (binary_expression
+      (literal (integer))
+      (literal (integer))))
+  (variable_assignment
+    (variable (identifier))
+    (binary_expression
+      (literal
+        (list
+          (binary_expression
+            (variable (identifier))
+            (variable (identifier)))))
+      (variable (identifier)))))
+
+================================================================================
+Boolean expressions
+================================================================================
+
+$result = $a and $b
+$result = $x or $y
+$result = not $z
+$result = $a > 5 and $b < 10
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (variable_assignment
+    (variable (identifier))
+    (binary_expression
+      (variable (identifier))
+      (variable (identifier))))
+  (variable_assignment
+    (variable (identifier))
+    (binary_expression
+      (variable (identifier))
+      (variable (identifier))))
+  (variable_assignment
+    (variable (identifier))
+    (unary_expression
+      (variable (identifier))))
+  (variable_assignment
+    (variable (identifier))
+    (binary_expression
+      (binary_expression
+        (variable (identifier))
+        (literal (integer)))
+      (binary_expression
+        (variable (identifier))
+        (literal (integer))))))
+
+================================================================================
+Unary expressions
+================================================================================
+
+$a = -$x
+$b = +$y
+$c = not true
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (variable_assignment
+    (variable (identifier))
+    (unary_expression
+      (variable (identifier))))
+  (variable_assignment
+    (variable (identifier))
+    (unary_expression
+      (variable (identifier))))
+  (variable_assignment
+    (variable (identifier))
+    (unary_expression
+      (literal (boolean)))))

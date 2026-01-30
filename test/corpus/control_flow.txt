@@ -1,0 +1,213 @@
+================================================================================
+If statement
+================================================================================
+
+if $x {
+  $lib.print("yes")
+}
+
+if $a > 10 {
+  $lib.print("big")
+} elif $a > 5 {
+  $lib.print("medium")
+} else {
+  $lib.print("small")
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (if_statement
+    (variable (identifier))
+    (block
+      (expression_statement
+        (function_call
+          (selector_expression
+            (variable (identifier))
+            (identifier))
+          (arguments
+            (argument
+              (literal (string))))))))
+  (if_statement
+    (binary_expression
+      (variable (identifier))
+      (literal (integer)))
+    (block
+      (expression_statement
+        (function_call
+          (selector_expression
+            (variable (identifier))
+            (identifier))
+          (arguments
+            (argument
+              (literal (string)))))))
+    (elif_clause
+      (binary_expression
+        (variable (identifier))
+        (literal (integer)))
+      (block
+        (expression_statement
+          (function_call
+            (selector_expression
+              (variable (identifier))
+              (identifier))
+            (arguments
+              (argument
+                (literal (string))))))))
+    (else_clause
+      (block
+        (expression_statement
+          (function_call
+            (selector_expression
+              (variable (identifier))
+              (identifier))
+            (arguments
+              (argument
+                (literal (string))))))))))
+
+================================================================================
+For loop
+================================================================================
+
+for $item in $list {
+  $lib.print($item)
+}
+
+for ($x, $y) in $pairs {
+  $lib.print($x)
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (for_statement
+    (variable (identifier))
+    (variable (identifier))
+    (block
+      (expression_statement
+        (function_call
+          (selector_expression
+            (variable (identifier))
+            (identifier))
+          (arguments
+            (argument
+              (variable (identifier))))))))
+  (for_statement
+    (variable_list
+      (variable (identifier))
+      (variable (identifier)))
+    (variable (identifier))
+    (block
+      (expression_statement
+        (function_call
+          (selector_expression
+            (variable (identifier))
+            (identifier))
+          (arguments
+            (argument
+              (variable (identifier)))))))))
+
+================================================================================
+While loop
+================================================================================
+
+while $count < 10 {
+  $count = $count + 1
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (while_statement
+    (binary_expression
+      (variable (identifier))
+      (literal (integer)))
+    (block
+      (variable_assignment
+        (variable (identifier))
+        (binary_expression
+          (variable (identifier))
+          (literal (integer)))))))
+
+================================================================================
+Switch statement
+================================================================================
+
+switch $value {
+  "foo": { $lib.print("is foo") }
+  "bar": { $lib.print("is bar") }
+  *: { $lib.print("default") }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (switch_statement
+    (variable (identifier))
+    (case_clause
+      (literal (string))
+      (block
+        (expression_statement
+          (function_call
+            (selector_expression
+              (variable (identifier))
+              (identifier))
+            (arguments
+              (argument
+                (literal (string))))))))
+    (case_clause
+      (literal (string))
+      (block
+        (expression_statement
+          (function_call
+            (selector_expression
+              (variable (identifier))
+              (identifier))
+            (arguments
+              (argument
+                (literal (string))))))))
+    (case_clause
+      (block
+        (expression_statement
+          (function_call
+            (selector_expression
+              (variable (identifier))
+              (identifier))
+            (arguments
+              (argument
+                (literal (string))))))))))
+
+================================================================================
+Try catch
+================================================================================
+
+try {
+  $x = $lib.dangerous()
+} catch "BadOp" as $err {
+  $lib.print($err)
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (try_statement
+    (block
+      (variable_assignment
+        (variable (identifier))
+        (function_call
+          (selector_expression
+            (variable (identifier))
+            (identifier))
+          (arguments))))
+    (catch_clause
+      (literal (string))
+      (variable (identifier))
+      (block
+        (expression_statement
+          (function_call
+            (selector_expression
+              (variable (identifier))
+              (identifier))
+            (arguments
+              (argument
+                (variable (identifier))))))))))

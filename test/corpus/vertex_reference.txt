@@ -1,0 +1,465 @@
+================================================================================
+Vertex reference: Dollar expression with precedence
+================================================================================
+
+$x = (1 + 3 / 2)
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (variable_assignment
+    (variable (identifier))
+    (literal
+      (list
+        (binary_expression
+          (literal (integer))
+          (binary_expression
+            (literal (integer))
+            (literal (integer))))))))
+
+================================================================================
+Vertex reference: Complex switch with multiple cases
+================================================================================
+
+switch $woot {
+  "hehe": { $lib.print("case1") }
+  "haha": { $lib.print("case2") }
+  *: { $lib.print("default") }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (switch_statement
+    (variable (identifier))
+    (case_clause
+      (literal (string))
+      (block
+        (expression_statement
+          (function_call
+            (selector_expression
+              (variable (identifier))
+              (identifier))
+            (arguments
+              (argument
+                (literal (string))))))))
+    (case_clause
+      (literal (string))
+      (block
+        (expression_statement
+          (function_call
+            (selector_expression
+              (variable (identifier))
+              (identifier))
+            (arguments
+              (argument
+                (literal (string))))))))
+    (case_clause
+      (block
+        (expression_statement
+          (function_call
+            (selector_expression
+              (variable (identifier))
+              (identifier))
+            (arguments
+              (argument
+                (literal (string))))))))))
+
+================================================================================
+Vertex reference: Function with default arguments
+================================================================================
+
+function foo(x, y=10, z="default") {
+  return($x + $y)
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (function_definition
+    (identifier)
+    (funcargs
+      (funcarg (identifier))
+      (funcarg
+        (identifier)
+        (literal (integer)))
+      (funcarg
+        (identifier)
+        (literal (string))))
+    (block
+      (return_statement
+        (binary_expression
+          (variable (identifier))
+          (variable (identifier)))))))
+
+================================================================================
+Vertex reference: Function call with keyword arguments
+================================================================================
+
+$result = $lib.func(x=1, y=2, z=3)
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (variable_assignment
+    (variable (identifier))
+    (function_call
+      (selector_expression
+        (variable (identifier))
+        (identifier))
+      (arguments
+        (argument
+          (keyword_argument
+            (identifier)
+            (literal (integer))))
+        (argument
+          (keyword_argument
+            (identifier)
+            (literal (integer))))
+        (argument
+          (keyword_argument
+            (identifier)
+            (literal (integer))))))))
+
+================================================================================
+Vertex reference: Nested function calls
+================================================================================
+
+$result = $lib.outer($lib.inner($x))
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (variable_assignment
+    (variable (identifier))
+    (function_call
+      (selector_expression
+        (variable (identifier))
+        (identifier))
+      (arguments
+        (argument
+          (function_call
+            (selector_expression
+              (variable (identifier))
+              (identifier))
+            (arguments
+              (argument
+                (variable (identifier))))))))))
+
+================================================================================
+Vertex reference: Complex boolean expression
+================================================================================
+
+$valid = $x > 0 and $y < 100 or not $z
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (variable_assignment
+    (variable (identifier))
+    (binary_expression
+      (binary_expression
+        (binary_expression
+          (variable (identifier))
+          (literal (integer)))
+        (binary_expression
+          (variable (identifier))
+          (literal (integer))))
+      (unary_expression
+        (variable (identifier))))))
+
+================================================================================
+Vertex reference: Power operator precedence
+================================================================================
+
+$result = 2 ** 3 ** 2
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (variable_assignment
+    (variable (identifier))
+    (binary_expression
+      (literal (integer))
+      (binary_expression
+        (literal (integer))
+        (literal (integer))))))
+
+================================================================================
+Vertex reference: Template string interpolation
+================================================================================
+
+$msg = `Hello {$name}, you are {$age} years old`
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (variable_assignment
+    (variable (identifier))
+    (literal
+      (string
+        (interpolation
+          (variable (identifier)))
+        (interpolation
+          (variable (identifier)))))))
+
+================================================================================
+Vertex reference: List with mixed expressions
+================================================================================
+
+$items = (1, $x, $func(), "string", true)
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (variable_assignment
+    (variable (identifier))
+    (literal
+      (list
+        (literal (integer))
+        (variable (identifier))
+        (function_call
+          (variable (identifier))
+          (arguments))
+        (literal (string))
+        (literal (boolean))))))
+
+================================================================================
+Vertex reference: Nested blocks with init and fini
+================================================================================
+
+init {
+  $counter = 0
+}
+
+for $item in $list {
+  $counter = $counter + 1
+}
+
+fini {
+  $lib.print($counter)
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (initblock
+    (block
+      (variable_assignment
+        (variable (identifier))
+        (literal (integer)))))
+  (for_statement
+    (variable (identifier))
+    (variable (identifier))
+    (block
+      (variable_assignment
+        (variable (identifier))
+        (binary_expression
+          (variable (identifier))
+          (literal (integer))))))
+  (finiblock
+    (block
+      (expression_statement
+        (function_call
+          (selector_expression
+            (variable (identifier))
+            (identifier))
+          (arguments
+            (argument
+              (variable (identifier)))))))))
+
+================================================================================
+Vertex reference: Try catch with multiple exception handlers
+================================================================================
+
+try {
+  $x = $lib.risky()
+} catch "BadOp" as $e1 {
+  $lib.warn($e1)
+} catch "NoSuchName" as $e2 {
+  $lib.error($e2)
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (try_statement
+    (block
+      (variable_assignment
+        (variable (identifier))
+        (function_call
+          (selector_expression
+            (variable (identifier))
+            (identifier))
+          (arguments))))
+    (catch_clause
+      (literal (string))
+      (variable (identifier))
+      (block
+        (expression_statement
+          (function_call
+            (selector_expression
+              (variable (identifier))
+              (identifier))
+            (arguments
+              (argument
+                (variable (identifier))))))))
+    (catch_clause
+      (literal (string))
+      (variable (identifier))
+      (block
+        (expression_statement
+          (function_call
+            (selector_expression
+              (variable (identifier))
+              (identifier))
+            (arguments
+              (argument
+                (variable (identifier))))))))))
+
+================================================================================
+Vertex reference: Complex tag with variable segments
+================================================================================
+
+#foo.$var.baz
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (expression_statement
+    (property_expression
+      (tag
+        (tag_segments
+          (variable (identifier)))))))
+
+================================================================================
+Vertex reference: Tag property with variable
+================================================================================
+
+#mytag:$prop
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (expression_statement
+    (property_expression
+      (tag_property
+        (tag_segments)
+        (variable (identifier))))))
+
+================================================================================
+Vertex reference: Relative property with variable
+================================================================================
+
+:$propname
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (expression_statement
+    (property_expression
+      (relative_property
+        (variable (identifier))))))
+
+================================================================================
+Vertex reference: Array of arrays
+================================================================================
+
+$matrix = [[1, 2], [3, 4], [5, 6]]
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (variable_assignment
+    (variable (identifier))
+    (literal
+      (array
+        (literal
+          (array
+            (literal (integer))
+            (literal (integer))))
+        (literal
+          (array
+            (literal (integer))
+            (literal (integer))))
+        (literal
+          (array
+            (literal (integer))
+            (literal (integer))))))))
+
+================================================================================
+Vertex reference: Chained attribute access
+================================================================================
+
+$result = $lib.module.submodule.func()
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (variable_assignment
+    (variable (identifier))
+    (function_call
+      (selector_expression
+        (selector_expression
+          (selector_expression
+            (variable (identifier))
+            (identifier))
+          (identifier))
+        (identifier))
+      (arguments))))
+
+================================================================================
+Vertex reference: Complex arithmetic with all operators
+================================================================================
+
+$result = $a + $b - $c * $d / $e % $f ** $g
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (variable_assignment
+    (variable (identifier))
+    (binary_expression
+      (binary_expression
+        (variable (identifier))
+        (variable (identifier)))
+      (binary_expression
+        (binary_expression
+          (binary_expression
+            (variable (identifier))
+            (variable (identifier)))
+          (variable (identifier)))
+        (binary_expression
+          (variable (identifier))
+          (variable (identifier)))))))
+
+================================================================================
+Vertex reference: While with break and continue
+================================================================================
+
+while true {
+  if $done { break }
+  if $skip { continue }
+  $lib.process()
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (while_statement
+    (literal (boolean))
+    (block
+      (if_statement
+        (variable (identifier))
+        (block
+          (break_statement)))
+      (if_statement
+        (variable (identifier))
+        (block
+          (continue_statement)))
+      (expression_statement
+        (function_call
+          (selector_expression
+            (variable (identifier))
+            (identifier))
+          (arguments))))))

@@ -18,6 +18,15 @@ module.exports = grammar({
     $.comment,
   ],
 
+  conflicts: ($) => [
+    [$._expression, $.variable_list],
+    [$.literal, $.tuple_assignment],
+    [$.keyword_argument, $.string],
+    [$.tag_segments],
+    [$.tag_property, $.tag],
+    [$.literal, $.case_clause],
+  ],
+
   rules: {
     source_file: ($) => repeat($._statement),
 
@@ -30,6 +39,7 @@ module.exports = grammar({
     _simple_statement: ($) => choice(
       $.expression_statement,
       $.variable_assignment,
+      $.tuple_assignment,
       $.return_statement,
       $.emit_statement,
       $.break_statement,
@@ -42,31 +52,94 @@ module.exports = grammar({
     // Compound statements
     _compound_statement: ($) => choice(
       $.function_definition,
+      $.if_statement,
+      $.for_statement,
+      $.while_statement,
+      $.switch_statement,
+      $.try_statement,
       $.initblock,
       $.finiblock,
       $.emptyblock,
     ),
 
-    expression_statement: ($) => $._expression,
+    expression_statement: ($) => choice(
+      $.property_expression,
+      $.subquery,
+      $._expression,
+    ),
+
+    // Subquery: optional yield followed by a block
+    subquery: ($) => seq(
+      optional('yield'),
+      $.block,
+    ),
+
+    // Property expression (for statements that are just properties or tags)
+    // Note: tag_property must be checked before tag to avoid ambiguity
+    property_expression: ($) => choice(
+      $.full_property,
+      $.relative_property,
+      $.universal_property,
+      $.tag_property_simple,
+      $.tag_property,
+      $.tag,
+    ),
+
     _expression: ($) => choice(
+      $.binary_expression,
+      $.unary_expression,
+      $.parenthesized_expression,
       $.variable,
       $.function_call,
       $.selector_expression,
-      // TODO: check for literal which does not look like string
-      // $.identifier,
       $.literal,
     ),
 
-    variable_assignment: ($) => seq($.variable, '=', field('value', $._expression)),
+    // Binary expressions with proper precedence
+    binary_expression: ($) => choice(
+      // Boolean operators
+      prec.left(1, seq($._expression, 'or', $._expression)),
+      prec.left(2, seq($._expression, 'and', $._expression)),
+      // Comparison operators
+      prec.left(3, seq($._expression, '<', $._expression)),
+      prec.left(3, seq($._expression, '>', $._expression)),
+      prec.left(3, seq($._expression, '<=', $._expression)),
+      prec.left(3, seq($._expression, '>=', $._expression)),
+      prec.left(3, seq($._expression, '!=', $._expression)),
+      prec.left(3, seq($._expression, '~=', $._expression)),
+      prec.left(3, seq($._expression, '^=', $._expression)),
+      // Note: '=' is used for assignment, not comparison in expressions
+      // Arithmetic operators
+      prec.left(4, seq($._expression, '+', $._expression)),
+      prec.left(4, seq($._expression, '-', $._expression)),
+      prec.left(5, seq($._expression, '*', $._expression)),
+      prec.left(5, seq($._expression, '/', $._expression)),
+      prec.left(5, seq($._expression, '%', $._expression)),
+      prec.right(6, seq($._expression, '**', $._expression)),
+    ),
 
-    identifier: (_) => /\w+/,
+    // Unary expressions
+    unary_expression: ($) => choice(
+      prec(7, seq('not', $._expression)),
+      prec(7, seq('-', $._expression)),
+      prec(7, seq('+', $._expression)),
+    ),
+
+    // Parenthesized expression (for grouping)
+    // Note: single-element lists like (123) are ambiguous with parenthesized expressions
+    // We prefer to parse them as lists to maintain consistency
+    parenthesized_expression: ($) => prec(-1, seq('(', $._expression, ')')),
+
+    variable_assignment: ($) => prec.right(seq($.variable, '=', field('value', $._expression))),
+
+    identifier: (_) => token(prec(-1, /\w+/)),
     variable: ($) => seq('$', field('name', $.identifier)),
 
-    selector_expression: ($) => seq(
+    selector_expression: ($) => prec(1, seq(
       field('object', $._expression),
       token.immediate('.'),
       field('attribute', $.identifier),
-    ),
+    )),
     // attribute_reference: ($) => seq(
     //   field('object', choice($.variable, $.attribute_reference)),
     //   token.immediate('.'),
@@ -79,27 +152,89 @@ module.exports = grammar({
       '=',
       field('value', $._expression),
     ),
-    argument: ($) => choice($.variable, $.string, $.keyword_argument),
+    argument: ($) => choice($._expression, $.keyword_argument),
     arguments: ($) => seq(token.immediate('('), commaSep($.argument), ')'),
     function_call: ($) => seq(
       field('name', $._expression),
       field('args', $.arguments),
     ),
 
-    integer: (_) => /-?\d+/,
-    float: (_) => /-?\d+.\d+/,
+    integer: (_) => token(prec(1, /-?\d+/)),
+    float: (_) => token(prec(2, /-?\d+\.\d+/)),
+    boolean: (_) => token(prec(2, choice('true', 'false'))),
+    null: (_) => token(prec(2, 'null')),
 
     // Literals
     literal: ($) => choice(
-      $.string,
-      $.integer,
       $.float,
+      $.integer,
+      $.boolean,
+      $.null,
+      $.string,
+      $.list,
+      $.array,
     ),
+
+    // Lists and arrays
+    list: ($) => seq('(', commaSep($._expression), optional(','), ')'),
+    array: ($) => seq('[', commaSep($._expression), optional(','), ']'),
+
+    // Variable list for unpacking
+    variable_list: ($) => seq('(', commaSep1($.variable), optional(','), ')'),
+
+    // Tuple unpacking assignment
+    tuple_assignment: ($) => prec.right(seq(
+      field('left', $.variable_list),
+      '=',
+      field('right', $._expression),
+    )),
 
     return_statement: ($) => seq('return', token.immediate('('), optional($._expression), ')'),
     emit_statement: ($) => seq('emit', $._expression),
     break_statement: (_) => prec.left('break'),
     continue_statement: (_) => prec.left('continue'),
+
+    // Storm properties
+    // Full property: inet:ipv4 or inet:ipv4:asn
+    full_property: (_) => token(/[a-z_][a-z0-9_]*(:[a-z0-9_]+)+/),
+
+    // Relative property: :ipv4 or :fqdn or :$var
+    relative_property: ($) => choice(
+      token(/:[a-z_][a-z0-9_]*(:[a-z0-9_]+)*/),
+      seq(':', $.variable),
+    ),
+
+    // Universal property: .$var (explicit variable form only to avoid conflicts)
+    // The standalone form like .created conflicts with selector_expression
+    // and will be added later with specific handling
+    universal_property: ($) => seq('.', $.variable),
+
+    // Storm tags
+    // Tag property with simple name: #tag:prop
+    tag_property_simple: (_) => token(prec(2, /#[\w]+(\.[\w]+)*:[a-z_][a-z0-9_]*/)),
+
+    // Tag property with variable: #tag:$var or #$tag:prop
+    tag_property: ($) => prec(1, seq(
+      '#',
+      choice($.variable, $.tag_segments),
+      ':',
+      choice(/[a-z_][a-z0-9_]*/, $.variable),
+    )),
+
+    // Tag: #tagname or #tag.segment.name or #$var
+    tag: ($) => seq(
+      '#',
+      choice(
+        $.variable,
+        $.tag_segments,
+      ),
+    ),
+
+    // Tag segments: tag.with.segments or tag.$var.segments
+    tag_segments: ($) => seq(
+      /[\w]+/,
+      repeat(seq('.', choice(/[\w]+/, $.variable))),
+    ),
 
     // Function definitions
     funcarg: ($) => seq(
@@ -216,7 +351,7 @@ module.exports = grammar({
       $._single_quoted_string,
       $._triple_quoted_string,
       $._formatstring,
-      // $.identifier,
+      $.identifier,
     ),
 
     // Use the same escape sequences as Python
@@ -233,14 +368,14 @@ module.exports = grammar({
       ),
     ))),
 
-    interpolation: ($) => seq(
+    interpolation: ($) => prec(1, seq(
       '{',
       field('expression', choice(
         $.identifier,
         $._expression,
       )),
       '}',
-    ),
+    )),
 
     _formatstring: ($) => seq(
       '`',
@@ -288,15 +423,67 @@ module.exports = grammar({
     ),
 
     // https://synapse.docs.vertex.link/en/latest/synapse/userguides/storm_adv_control.html#if-else-statement
-    // if_statement: ($) => seq(
-    //   'if',
-    //   field('condition', $._expression),
-    //   field('consequence', $.block),
-    //   repeat(field('alternative', $.elif_clause)),
-    //   optional(field('alternative', $.else_clause)),
-    // ),
-    // elif_clause: ($) => seq('elif', field('condition', $._expression), field('consequence', $.block)),
-    // else_clause: ($) => seq('else', field('consequence', $.block)),
+    if_statement: ($) => seq(
+      'if',
+      field('condition', $._expression),
+      field('consequence', $.block),
+      repeat(field('alternative', $.elif_clause)),
+      optional(field('alternative', $.else_clause)),
+    ),
+    elif_clause: ($) => seq('elif', field('condition', $._expression), field('consequence', $.block)),
+    else_clause: ($) => seq('else', field('consequence', $.block)),
+
+    // For loop
+    for_statement: ($) => seq(
+      'for',
+      choice($.variable, $.variable_list),
+      'in',
+      $._expression,
+      $.block,
+    ),
+
+    // While loop
+    while_statement: ($) => seq(
+      'while',
+      $._expression,
+      $.block,
+    ),
+
+    // Switch/case statement
+    switch_statement: ($) => seq(
+      'switch',
+      field('value', $.variable),
+      '{',
+      repeat($.case_clause),
+      '}',
+    ),
+
+    // Case clause in switch statement
+    case_clause: ($) => seq(
+      field('pattern', choice(
+        '*',  // default case
+        $.literal,
+        $.list,  // multiple patterns
+      )),
+      ':',
+      field('consequence', $.block),
+    ),
+
+    // Try/catch statement
+    try_statement: ($) => seq(
+      'try',
+      $.block,
+      repeat($.catch_clause),
+    ),
+
+    // Catch clause in try statement
+    catch_clause: ($) => seq(
+      'catch',
+      field('exception', $._expression),
+      'as',
+      field('variable', $.variable),
+      $.block,
+    ),
 
 
     // A value consisting of a name then 0 or more derefs and function calls
