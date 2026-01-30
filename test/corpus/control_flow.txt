@@ -128,3 +128,86 @@ while $count < 10 {
         (binary_expression
           (variable (identifier))
           (literal (integer)))))))
+
+================================================================================
+Switch statement
+================================================================================
+
+switch $value {
+  "foo": { $lib.print("is foo") }
+  "bar": { $lib.print("is bar") }
+  *: { $lib.print("default") }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (switch_statement
+    (variable (identifier))
+    (case_clause
+      (literal (string))
+      (block
+        (expression_statement
+          (function_call
+            (selector_expression
+              (variable (identifier))
+              (identifier))
+            (arguments
+              (argument
+                (literal (string))))))))
+    (case_clause
+      (literal (string))
+      (block
+        (expression_statement
+          (function_call
+            (selector_expression
+              (variable (identifier))
+              (identifier))
+            (arguments
+              (argument
+                (literal (string))))))))
+    (case_clause
+      (block
+        (expression_statement
+          (function_call
+            (selector_expression
+              (variable (identifier))
+              (identifier))
+            (arguments
+              (argument
+                (literal (string))))))))))
+
+================================================================================
+Try catch
+================================================================================
+
+try {
+  $x = $lib.dangerous()
+} catch "BadOp" as $err {
+  $lib.print($err)
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (try_statement
+    (block
+      (variable_assignment
+        (variable (identifier))
+        (function_call
+          (selector_expression
+            (variable (identifier))
+            (identifier))
+          (arguments))))
+    (catch_clause
+      (literal (string))
+      (variable (identifier))
+      (block
+        (expression_statement
+          (function_call
+            (selector_expression
+              (variable (identifier))
+              (identifier))
+            (arguments
+              (argument
+                (variable (identifier))))))))))

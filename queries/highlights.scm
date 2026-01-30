@@ -54,6 +54,16 @@
   )
 )
 
+; Storm properties
+(full_property) @property
+(relative_property) @property
+(universal_property) @property
+
+; Storm tags
+(tag) @tag
+(tag_property) @tag
+(tag_property_simple) @tag
+
 ; Operators
 
 [
@@ -97,6 +107,7 @@
   "if"
   "elif"
   "else"
+  "switch"
 ] @keyword.conditional
 
 [
@@ -109,6 +120,12 @@
   "break"
   "continue"
 ] @keyword.repeat
+
+[
+  "try"
+  "catch"
+  "as"
+] @keyword.exception
 
 [
   "init"

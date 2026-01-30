@@ -22,6 +22,9 @@ module.exports = grammar({
     [$._expression, $.variable_list],
     [$.literal, $.tuple_assignment],
     [$.keyword_argument, $.string],
+    [$.tag_segments],
+    [$.tag_property, $.tag],
+    [$.literal, $.case_clause],
   ],
 
   rules: {
@@ -52,12 +55,36 @@ module.exports = grammar({
       $.if_statement,
       $.for_statement,
       $.while_statement,
+      $.switch_statement,
+      $.try_statement,
       $.initblock,
       $.finiblock,
       $.emptyblock,
     ),
 
-    expression_statement: ($) => $._expression,
+    expression_statement: ($) => choice(
+      $.property_expression,
+      $.subquery,
+      $._expression,
+    ),
+
+    // Subquery: optional yield followed by a block
+    subquery: ($) => seq(
+      optional('yield'),
+      $.block,
+    ),
+
+    // Property expression (for statements that are just properties or tags)
+    // Note: tag_property must be checked before tag to avoid ambiguity
+    property_expression: ($) => choice(
+      $.full_property,
+      $.relative_property,
+      $.universal_property,
+      $.tag_property_simple,
+      $.tag_property,
+      $.tag,
+    ),
+
     _expression: ($) => choice(
       $.binary_expression,
       $.unary_expression,
@@ -108,11 +135,11 @@ module.exports = grammar({
     identifier: (_) => token(prec(-1, /\w+/)),
     variable: ($) => seq('$', field('name', $.identifier)),
 
-    selector_expression: ($) => seq(
+    selector_expression: ($) => prec(1, seq(
       field('object', $._expression),
       token.immediate('.'),
       field('attribute', $.identifier),
-    ),
+    )),
     // attribute_reference: ($) => seq(
     //   field('object', choice($.variable, $.attribute_reference)),
     //   token.immediate('.'),
@@ -166,6 +193,48 @@ module.exports = grammar({
     emit_statement: ($) => seq('emit', $._expression),
     break_statement: (_) => prec.left('break'),
     continue_statement: (_) => prec.left('continue'),
+
+    // Storm properties
+    // Full property: inet:ipv4 or inet:ipv4:asn
+    full_property: (_) => token(/[a-z_][a-z0-9_]*(:[a-z0-9_]+)+/),
+
+    // Relative property: :ipv4 or :fqdn or :$var
+    relative_property: ($) => choice(
+      token(/:[a-z_][a-z0-9_]*(:[a-z0-9_]+)*/),
+      seq(':', $.variable),
+    ),
+
+    // Universal property: .$var (explicit variable form only to avoid conflicts)
+    // The standalone form like .created conflicts with selector_expression
+    // and will be added later with specific handling
+    universal_property: ($) => seq('.', $.variable),
+
+    // Storm tags
+    // Tag property with simple name: #tag:prop
+    tag_property_simple: (_) => token(prec(2, /#[\w]+(\.[\w]+)*:[a-z_][a-z0-9_]*/)),
+
+    // Tag property with variable: #tag:$var or #$tag:prop
+    tag_property: ($) => prec(1, seq(
+      '#',
+      choice($.variable, $.tag_segments),
+      ':',
+      choice(/[a-z_][a-z0-9_]*/, $.variable),
+    )),
+
+    // Tag: #tagname or #tag.segment.name or #$var
+    tag: ($) => seq(
+      '#',
+      choice(
+        $.variable,
+        $.tag_segments,
+      ),
+    ),
+
+    // Tag segments: tag.with.segments or tag.$var.segments
+    tag_segments: ($) => seq(
+      /[\w]+/,
+      repeat(seq('.', choice(/[\w]+/, $.variable))),
+    ),
 
     // Function definitions
     funcarg: ($) => seq(
@@ -377,6 +446,42 @@ module.exports = grammar({
     while_statement: ($) => seq(
       'while',
       $._expression,
+      $.block,
+    ),
+
+    // Switch/case statement
+    switch_statement: ($) => seq(
+      'switch',
+      field('value', $.variable),
+      '{',
+      repeat($.case_clause),
+      '}',
+    ),
+
+    // Case clause in switch statement
+    case_clause: ($) => seq(
+      field('pattern', choice(
+        '*',  // default case
+        $.literal,
+        $.list,  // multiple patterns
+      )),
+      ':',
+      field('consequence', $.block),
+    ),
+
+    // Try/catch statement
+    try_statement: ($) => seq(
+      'try',
+      $.block,
+      repeat($.catch_clause),
+    ),
+
+    // Catch clause in try statement
+    catch_clause: ($) => seq(
+      'catch',
+      field('exception', $._expression),
+      'as',
+      field('variable', $.variable),
       $.block,
     ),
 
