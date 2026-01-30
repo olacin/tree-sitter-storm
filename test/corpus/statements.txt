@@ -1,0 +1,276 @@
+================================================================================
+Return statement with value
+================================================================================
+
+return(42)
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (return_statement
+    (literal (integer))))
+
+================================================================================
+Return statement with variable
+================================================================================
+
+return($result)
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (return_statement
+    (variable (identifier))))
+
+================================================================================
+Return statement empty
+================================================================================
+
+return()
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (return_statement))
+
+================================================================================
+Return statement with expression
+================================================================================
+
+return($x + $y)
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (return_statement
+    (binary_expression
+      (variable (identifier))
+      (variable (identifier)))))
+
+================================================================================
+Emit statement with variable
+================================================================================
+
+emit $node
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (emit_statement
+    (variable (identifier))))
+
+================================================================================
+Emit statement with list
+================================================================================
+
+emit (1, 2, 3)
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (emit_statement
+    (literal
+      (list
+        (literal (integer))
+        (literal (integer))
+        (literal (integer))))))
+
+================================================================================
+Emit statement with expression
+================================================================================
+
+emit $lib.getData()
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (emit_statement
+    (function_call
+      (selector_expression
+        (variable (identifier))
+        (identifier))
+      (arguments))))
+
+================================================================================
+Break statement
+================================================================================
+
+break
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (break_statement))
+
+================================================================================
+Break in for loop
+================================================================================
+
+for $x in (1, 2, 3) {
+  if $x > 1 { break }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (for_statement
+    (variable (identifier))
+    (literal
+      (list
+        (literal (integer))
+        (literal (integer))
+        (literal (integer))))
+    (block
+      (if_statement
+        (binary_expression
+          (variable (identifier))
+          (literal (integer)))
+        (block
+          (break_statement))))))
+
+================================================================================
+Continue statement
+================================================================================
+
+continue
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (continue_statement))
+
+================================================================================
+Continue in while loop
+================================================================================
+
+while $running {
+  if $skip { continue }
+  $lib.process()
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (while_statement
+    (variable (identifier))
+    (block
+      (if_statement
+        (variable (identifier))
+        (block
+          (continue_statement)))
+      (expression_statement
+        (function_call
+          (selector_expression
+            (variable (identifier))
+            (identifier))
+          (arguments))))))
+
+================================================================================
+Yield statement with value
+================================================================================
+
+yield $value
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (yield_statement
+    (variable (identifier))))
+
+================================================================================
+Yield statement with expression
+================================================================================
+
+yield ($x + 1)
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (yield_statement
+    (literal
+      (list
+        (binary_expression
+          (variable (identifier))
+          (literal (integer)))))))
+
+================================================================================
+Divert statement
+================================================================================
+
+divert $condition $generator
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (divert_statement
+    (variable (identifier))
+    (variable (identifier))))
+
+================================================================================
+Divert with expressions
+================================================================================
+
+divert ($x > 0) $lib.getNodes()
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (divert_statement
+    (literal
+      (list
+        (binary_expression
+          (variable (identifier))
+          (literal (integer)))))
+    (function_call
+      (selector_expression
+        (variable (identifier))
+        (identifier))
+      (arguments))))
+
+================================================================================
+Spin statement
+================================================================================
+
+spin
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (spin_statement))
+
+================================================================================
+Multiple break and continue
+================================================================================
+
+for $i in $items {
+  if not $i { continue }
+  if $i > 100 { break }
+  $lib.print($i)
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (for_statement
+    (variable (identifier))
+    (variable (identifier))
+    (block
+      (if_statement
+        (unary_expression
+          (variable (identifier)))
+        (block
+          (continue_statement)))
+      (if_statement
+        (binary_expression
+          (variable (identifier))
+          (literal (integer)))
+        (block
+          (break_statement)))
+      (expression_statement
+        (function_call
+          (selector_expression
+            (variable (identifier))
+            (identifier))
+          (arguments
+            (argument
+              (variable (identifier)))))))))

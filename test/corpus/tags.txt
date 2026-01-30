@@ -1,0 +1,67 @@
+================================================================================
+Simple tags
+================================================================================
+
+#mytag
+#cno.threat
+#$tagvar
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (expression_statement
+    (property_expression
+      (tag
+        (tag_segments))))
+  (expression_statement
+    (property_expression
+      (tag
+        (tag_segments))))
+  (expression_statement
+    (property_expression
+      (tag
+        (variable (identifier))))))
+
+================================================================================
+Tags with segments
+================================================================================
+
+#rep.microsoft
+#cno.threat.t80
+#tag.$var.segment
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (expression_statement
+    (property_expression
+      (tag
+        (tag_segments))))
+  (expression_statement
+    (property_expression
+      (tag
+        (tag_segments))))
+  (expression_statement
+    (property_expression
+      (tag
+        (tag_segments
+          (variable (identifier)))))))
+
+================================================================================
+Tag properties
+================================================================================
+
+#mytag:prop
+#tag:$propvar
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (expression_statement
+    (property_expression
+      (tag_property_simple)))
+  (expression_statement
+    (property_expression
+      (tag_property
+        (tag_segments)
+        (variable (identifier))))))

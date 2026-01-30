@@ -1,0 +1,459 @@
+================================================================================
+Unicode in strings
+================================================================================
+
+"Hello 世界"
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (expression_statement
+    (literal (string))))
+
+================================================================================
+Unicode in comments
+================================================================================
+
+// コメント
+$x = 42
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (comment)
+  (variable_assignment
+    (variable (identifier))
+    (literal (integer))))
+
+================================================================================
+Escaped newline in string
+================================================================================
+
+"Line 1\nLine 2"
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (expression_statement
+    (literal
+      (string (escape_sequence)))))
+
+================================================================================
+Escaped tab in string
+================================================================================
+
+"Column1\tColumn2"
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (expression_statement
+    (literal
+      (string (escape_sequence)))))
+
+================================================================================
+Backslash escape in string
+================================================================================
+
+"Path\\to\\file"
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (expression_statement
+    (literal
+      (string
+        (escape_sequence)
+        (escape_sequence)))))
+
+================================================================================
+Empty string
+================================================================================
+
+$x = ""
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (variable_assignment
+    (variable (identifier))
+    (literal (string))))
+
+================================================================================
+Null assignment
+================================================================================
+
+$x = null
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (variable_assignment
+    (variable (identifier))
+    (literal (null))))
+
+================================================================================
+Empty list
+================================================================================
+
+$x = ()
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (variable_assignment
+    (variable (identifier))
+    (literal (list))))
+
+================================================================================
+Empty array
+================================================================================
+
+$x = []
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (variable_assignment
+    (variable (identifier))
+    (literal (array))))
+
+================================================================================
+Complex nested parentheses
+================================================================================
+
+$result = ((($x + 1) * 2) - 3)
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (variable_assignment
+    (variable (identifier))
+    (literal
+      (list
+        (binary_expression
+          (literal
+            (list
+              (binary_expression
+                (literal
+                  (list
+                    (binary_expression
+                      (variable (identifier))
+                      (literal (integer)))))
+                (literal (integer)))))
+          (literal (integer)))))))
+
+================================================================================
+Mixed boolean operators
+================================================================================
+
+$result = $a and $b or not $c
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (variable_assignment
+    (variable (identifier))
+    (binary_expression
+      (binary_expression
+        (variable (identifier))
+        (variable (identifier)))
+      (unary_expression
+        (variable (identifier))))))
+
+================================================================================
+Operator precedence with power
+================================================================================
+
+$result = 2 + 3 * 4 ** 2
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (variable_assignment
+    (variable (identifier))
+    (binary_expression
+      (literal (integer))
+      (binary_expression
+        (literal (integer))
+        (binary_expression
+          (literal (integer))
+          (literal (integer)))))))
+
+================================================================================
+Complex nested expression
+================================================================================
+
+$result = (($a + $b) * ($c - $d)) / $e
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (variable_assignment
+    (variable (identifier))
+    (binary_expression
+      (literal
+        (list
+          (binary_expression
+            (literal
+              (list
+                (binary_expression
+                  (variable (identifier))
+                  (variable (identifier)))))
+            (literal
+              (list
+                (binary_expression
+                  (variable (identifier))
+                  (variable (identifier))))))))
+      (variable (identifier)))))
+
+================================================================================
+Comparison with boolean operators
+================================================================================
+
+$valid = ($x > 0 and $x < 100) or $override
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (variable_assignment
+    (variable (identifier))
+    (binary_expression
+      (literal
+        (list
+          (binary_expression
+            (binary_expression
+              (variable (identifier))
+              (literal (integer)))
+            (binary_expression
+              (variable (identifier))
+              (literal (integer))))))
+      (variable (identifier)))))
+
+================================================================================
+Negative number
+================================================================================
+
+$x = -42
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (variable_assignment
+    (variable (identifier))
+    (literal (integer))))
+
+================================================================================
+Negative float
+================================================================================
+
+$y = -3.14
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (variable_assignment
+    (variable (identifier))
+    (literal (float))))
+
+================================================================================
+Large number
+================================================================================
+
+$big = 999999999999
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (variable_assignment
+    (variable (identifier))
+    (literal (integer))))
+
+================================================================================
+Unary negation on variable
+================================================================================
+
+$foo = (-$foo)
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (variable_assignment
+    (variable (identifier))
+    (literal
+      (list
+        (unary_expression
+          (variable (identifier)))))))
+
+================================================================================
+Unary plus
+================================================================================
+
+$x = +42
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (variable_assignment
+    (variable (identifier))
+    (unary_expression
+      (literal (integer)))))
+
+================================================================================
+Triple nested not
+================================================================================
+
+$x = not not not $y
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (variable_assignment
+    (variable (identifier))
+    (unary_expression
+      (unary_expression
+        (unary_expression
+          (variable (identifier)))))))
+
+================================================================================
+List with trailing comma
+================================================================================
+
+$list = (1, 2, 3,)
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (variable_assignment
+    (variable (identifier))
+    (literal
+      (list
+        (literal (integer))
+        (literal (integer))
+        (literal (integer))))))
+
+================================================================================
+Array with trailing comma
+================================================================================
+
+$arr = [1, 2, 3,]
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (variable_assignment
+    (variable (identifier))
+    (literal
+      (array
+        (literal (integer))
+        (literal (integer))
+        (literal (integer))))))
+
+================================================================================
+Single element list
+================================================================================
+
+$single = (42,)
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (variable_assignment
+    (variable (identifier))
+    (literal
+      (list
+        (literal (integer))))))
+
+================================================================================
+Deeply nested list
+================================================================================
+
+$nested = ((1, 2), (3, 4), (5, 6))
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (variable_assignment
+    (variable (identifier))
+    (literal
+      (list
+        (literal
+          (list
+            (literal (integer))
+            (literal (integer))))
+        (literal
+          (list
+            (literal (integer))
+            (literal (integer))))
+        (literal
+          (list
+            (literal (integer))
+            (literal (integer))))))))
+
+================================================================================
+Mixed types in list
+================================================================================
+
+$mixed = (42, "hello", true, null, 3.14)
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (variable_assignment
+    (variable (identifier))
+    (literal
+      (list
+        (literal (integer))
+        (literal (string))
+        (literal (boolean))
+        (literal (null))
+        (literal (float))))))
+
+================================================================================
+Very long identifier
+================================================================================
+
+$this_is_a_very_long_variable_name_that_should_still_parse_correctly = 42
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (variable_assignment
+    (variable (identifier))
+    (literal (integer))))
+
+================================================================================
+Chained comparisons
+================================================================================
+
+$valid = $min < $value and $value < $max
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (variable_assignment
+    (variable (identifier))
+    (binary_expression
+      (binary_expression
+        (variable (identifier))
+        (variable (identifier)))
+      (binary_expression
+        (variable (identifier))
+        (variable (identifier))))))
+
+================================================================================
+Multiple unary operators
+================================================================================
+
+$x = -(-$y)
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (variable_assignment
+    (variable (identifier))
+    (unary_expression
+      (literal
+        (list
+          (unary_expression
+            (variable (identifier))))))))
